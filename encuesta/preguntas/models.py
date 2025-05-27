@@ -35,3 +35,19 @@ class UsuarioInteresado:
     @staticmethod
     def guardar(data):
         return get_contact_collection().insert_one(data)
+
+def get_respuestas_collection():
+    client = MongoClient(settings.MONGODB_URI)
+    db = client.get_default_database()
+    return db['Respuestas']  # ← nueva colección
+
+class RespuestaUsuario:
+    @staticmethod
+    def guardar_respuesta(data):
+        collection = get_respuestas_collection()
+        return collection.insert_one(data).inserted_id
+    
+class EncuestaUsuario:
+    @staticmethod
+    def guardar_respuesta(data):
+        return get_encuesta_collection().insert_one(data).inserted_id    
