@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Test Vocacional</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f4f8fb;
+      padding: 2rem;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+      color: #007acc;
+    }
+    .question {
+      margin-bottom: 2rem;
+    }
+    .question h3 {
+      margin-bottom: 0.5rem;
+    }
+    .answers label {
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+    button {
+      display: block;
+      background: #007acc;
+      color: white;
+      padding: 0.8rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin: auto;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005f99;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Responde las preguntas</h1>
+    <form id="quizForm">
+      <div id="questionsContainer">Cargando preguntas...</div>
+      <button type="submit" style="display:none">Enviar respuestas</button>
+    </form>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:8000/api/preguntas/";
+    let preguntas = [];
+
+    async function obtenerPreguntas(token) {
+      const res = await fetch(API_URL, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (!res.ok) {
+        document.getElementById("questionsContainer").innerHTML = "Error al cargar preguntas.";
+        return;
+      }
+      preguntas = await res.json();
+      mostrarPreguntas(preguntas);
+    }
+
+    function mostrarPreguntas(lista) {
+      const container = document.getElementById("questionsContainer");
+      container.innerHTML = "";
+      lista.forEach((p, index) => {
+        const div = document.createElement("div");
+        div.classList.add("question");
+        div.innerHTML = `
+          <h3>${p.pregunta}</h3>
+          <div class="answers">
+            <label><input type="radio" name="${p._id}" value="respuesta1" required> ${p.respuestas.respuesta1}</label>
+            <label><input type="radio" name="${p._id}" value="respuesta2" required> ${p.respuestas.respuesta2}</label>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+      document.querySelector("button[type='submit']").style.display = "block";
+    }
+
+    document.getElementById("quizForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      let puntaje = 0;
+      for (let [key, value] of formData.entries()) {
+        if (value === "respuesta1") puntaje++;
+      }
+
+      let carrera = "";
+      if (puntaje >= preguntas.length * 0.75) carrera = "Ingeniería o diseño";
+      else if (puntaje >= preguntas.length * 0.5) carrera = "Negocios o comunicación";
+      else carrera = "Trabajo social, salud o educación";
+
+      localStorage.setItem("carreraRecomendada", carrera);
+      window.location.href = "resultado.html";
+    });
+
+    // Solicitar el token al usuario y cargar preguntas
+    window.onload = () => {
+      const token = prompt("Ingresa tu token JWT:");
+      if (token) {
+        obtenerPreguntas(token);
+      } else {
+        document.getElementById("questionsContainer").innerHTML = "Token no ingresado.";
+      }
+    };
+  </script>
+</body>
+</html>
