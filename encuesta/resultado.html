@@ -59,9 +59,10 @@
     <p>Si deseas que nos contactemos contigo, por favor completa el siguiente formulario:</p>
 
     <form id="contactForm">
-      <input type="text" placeholder="Nombre completo" required />
-      <input type="email" placeholder="Correo electrónico" required />
-      <textarea rows="4" placeholder="Mensaje o comentarios"></textarea>
+      <input type="text" id="nombre" placeholder="Nombre completo" required />
+      <input type="email" id="correo" placeholder="Correo electrónico" required />
+      <input type="tel" id="telefono" placeholder="Número de Teléfono" required />
+      <textarea rows="4" id="comentarios" placeholder="Mensaje o comentarios"></textarea>
       <button type="submit">Enviar información</button>
     </form>
   </div>
@@ -71,10 +72,43 @@
     document.getElementById("careerResult").textContent =
       carrera ? `Tu carrera ideal es: ${carrera}` : "No se encontró resultado.";
 
-    document.getElementById("contactForm").addEventListener("submit", e => {
+    document.getElementById("contactForm").addEventListener("submit", async e => {
       e.preventDefault();
-      alert("¡Gracias por enviar tus datos! Nos pondremos en contacto.");
-      e.target.reset();
+
+      const nombre = document.getElementById("nombre").value;
+      const correo = document.getElementById("correo").value;
+      const telefono = document.getElementById("telefono").value;
+      const comentarios = document.getElementById("comentarios").value;
+
+      const datos = {
+        nombre,
+        correo,
+        telefono,
+        comentarios,
+        carreraRecomendada: carrera,
+        fecha: new Date().toISOString()
+      };
+
+      try {
+        const res = await fetch("http://localhost:8000/api/contacto/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(datos)
+        });
+
+        if (res.ok) {
+          alert("¡Gracias por enviar tus datos! Nos pondremos en contacto.");
+          e.target.reset();
+        } else {
+          const error = await res.json();
+          alert("Error al guardar: " + error.error);
+        }
+      } catch (err) {
+        alert("Error de red al enviar los datos.");
+        console.error(err);
+      }
     });
   </script>
 </body>

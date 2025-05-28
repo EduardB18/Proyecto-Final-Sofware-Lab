@@ -11,7 +11,7 @@ def get_collection():
 def get_contact_collection():
     client = MongoClient(settings.MONGODB_URI)
     db = client.get_default_database()
-    return db['usuarios_interesados']
+    return db['usuarios_encuesta']
 
 class Pregunta(models.Model):
     texto = models.CharField(max_length=255)
@@ -50,4 +50,4 @@ class RespuestaUsuario:
 class EncuestaUsuario:
     @staticmethod
     def guardar_respuesta(data):
-        return get_encuesta_collection().insert_one(data).inserted_id    
+        return get_contact_collection().insert_one(data).inserted_id    

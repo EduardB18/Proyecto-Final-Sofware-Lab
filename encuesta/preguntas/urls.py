@@ -11,10 +11,10 @@ urlpatterns = [
    
     path('admin/', admin.site.urls),
        path('', include(router.urls)),
+        path('usuarios_encuesta/', GuardarEncuestaView.as_view(), name='usuarios_encuesta'),
+        
+]
    
     
-]
 
-urlpatterns = [
-    path('guardar_encuesta/', GuardarEncuestaView.as_view(), name='guardar_encuesta'),
-]
+

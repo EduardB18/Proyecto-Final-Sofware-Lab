@@ -10,6 +10,9 @@ from rest_framework import status
 from .models import RespuestaUsuario
 from .models import EncuestaUsuario
 
+
+
+
 class PreguntaViewSet(viewsets.ViewSet):
     def list(self, request):
         preguntas = Pregunta.get_all()
@@ -30,7 +33,7 @@ class GuardarRespuestaView(APIView):
     def post(self, request):
         data = request.data
         try:
-            inserted_id = RespuestaUsuario.guardar_respuesta(data)
+            inserted_id = RespuestaUsuario.usuarios_respuesta(data)
             return Response({'mensaje': 'Respuesta guardada correctamente', 'id': str(inserted_id)}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -42,4 +45,4 @@ class GuardarEncuestaView(APIView):
             inserted_id = EncuestaUsuario.guardar_respuesta(data)
             return Response({'message': 'Datos guardados', 'id': str(inserted_id)}, status=status.HTTP_201_CREATED)
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)        
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
